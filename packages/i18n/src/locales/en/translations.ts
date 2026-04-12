@@ -27,6 +27,11 @@ export default {
         title: "No authentication methods available",
         description: "Please contact your administrator to enable authentication for your instance.",
       },
+      oauth: {
+        continue_with_provider: "Continue with {provider}",
+        sign_in_with_provider: "Sign in with {provider}",
+        sign_up_with_provider: "Sign up with {provider}",
+      },
     },
   },
   submit: "Submit",

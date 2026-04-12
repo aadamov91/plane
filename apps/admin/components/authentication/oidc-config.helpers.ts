@@ -7,6 +7,7 @@
 import type { IInstanceConfiguration, TInstanceOIDCAuthenticationConfigurationKeys } from "@plane/types";
 
 export type TOIDCConfigFormValues = Record<TInstanceOIDCAuthenticationConfigurationKeys, string>;
+type TOIDCConfigStateKeys = TInstanceOIDCAuthenticationConfigurationKeys | "IS_OIDC_ENABLED";
 
 export const OIDC_REQUIRED_CONFIG_KEYS: TInstanceOIDCAuthenticationConfigurationKeys[] = [
   "OIDC_ISSUER",
@@ -36,13 +37,20 @@ const OIDC_CONFIG_DEFAULTS: TOIDCConfigFormValues = {
 
 const OIDC_CONFIG_KEY_SET = new Set<string>(Object.keys(OIDC_CONFIG_DEFAULTS));
 
-type TOIDCConfigLike = Partial<Record<TInstanceOIDCAuthenticationConfigurationKeys, string>>;
+type TOIDCConfigLike = Partial<Record<TOIDCConfigStateKeys, string>>;
+
+export const getOIDCProviderName = (config?: TOIDCConfigLike): string =>
+  config?.OIDC_PROVIDER_NAME?.trim() || OIDC_CONFIG_DEFAULTS.OIDC_PROVIDER_NAME;
 
 export const isOIDCConfigured = (config?: TOIDCConfigLike): boolean =>
   OIDC_REQUIRED_CONFIG_KEYS.every((key) => Boolean(config?.[key]?.trim()));
 
+export const isOIDCEnabled = (config?: TOIDCConfigLike): boolean => config?.IS_OIDC_ENABLED === "1";
+
+export const canToggleOIDC = (config?: TOIDCConfigLike): boolean => isOIDCConfigured(config) || isOIDCEnabled(config);
+
 export const buildOIDCConfigFormValues = (config?: TOIDCConfigLike): TOIDCConfigFormValues => ({
-  OIDC_PROVIDER_NAME: config?.OIDC_PROVIDER_NAME || OIDC_CONFIG_DEFAULTS.OIDC_PROVIDER_NAME,
+  OIDC_PROVIDER_NAME: getOIDCProviderName(config),
   OIDC_ISSUER: config?.OIDC_ISSUER || OIDC_CONFIG_DEFAULTS.OIDC_ISSUER,
   OIDC_CLIENT_ID: config?.OIDC_CLIENT_ID || OIDC_CONFIG_DEFAULTS.OIDC_CLIENT_ID,
   OIDC_CLIENT_SECRET: config?.OIDC_CLIENT_SECRET || OIDC_CONFIG_DEFAULTS.OIDC_CLIENT_SECRET,

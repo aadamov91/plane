@@ -11,7 +11,7 @@ import { KeyRound } from "lucide-react";
 import { setPromiseToast } from "@plane/propel/toast";
 import { Loader, ToggleSwitch } from "@plane/ui";
 import { AuthenticationMethodCard } from "@/components/authentication/authentication-method-card";
-import { isOIDCConfigured } from "@/components/authentication/oidc-config.helpers";
+import { canToggleOIDC, getOIDCProviderName, isOIDCEnabled } from "@/components/authentication/oidc-config.helpers";
 import { PageWrapper } from "@/components/common/page-wrapper";
 import { useInstance } from "@/hooks/store";
 import type { Route } from "./+types/page";
@@ -20,8 +20,7 @@ import { InstanceOIDCConfigForm } from "./form";
 const InstanceOIDCAuthenticationPage = observer(function InstanceOIDCAuthenticationPage(_props: Route.ComponentProps) {
   const { fetchInstanceConfigurations, formattedConfig, updateInstanceConfigurations } = useInstance();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const enableOIDCConfig = formattedConfig?.IS_OIDC_ENABLED ?? "";
-  const providerName = formattedConfig?.OIDC_PROVIDER_NAME?.trim() || "OpenID Connect";
+  const providerName = getOIDCProviderName(formattedConfig);
 
   useSWR("INSTANCE_CONFIGURATIONS", () => fetchInstanceConfigurations());
 
@@ -55,8 +54,8 @@ const InstanceOIDCAuthenticationPage = observer(function InstanceOIDCAuthenticat
     }
   };
 
-  const isOIDCEnabled = enableOIDCConfig === "1";
-  const canToggleOIDC = isOIDCConfigured(formattedConfig) || isOIDCEnabled;
+  const oidcEnabled = isOIDCEnabled(formattedConfig);
+  const oidcToggleAllowed = canToggleOIDC(formattedConfig);
 
   return (
     <PageWrapper
@@ -67,12 +66,12 @@ const InstanceOIDCAuthenticationPage = observer(function InstanceOIDCAuthenticat
           icon={<KeyRound className="h-6 w-6 p-0.5 text-tertiary" />}
           config={
             <ToggleSwitch
-              value={isOIDCEnabled}
+              value={oidcEnabled}
               onChange={() => {
-                updateConfig("IS_OIDC_ENABLED", isOIDCEnabled ? "0" : "1");
+                updateConfig("IS_OIDC_ENABLED", oidcEnabled ? "0" : "1");
               }}
               size="sm"
-              disabled={isSubmitting || !formattedConfig || !canToggleOIDC}
+              disabled={isSubmitting || !formattedConfig || !oidcToggleAllowed}
             />
           }
           disabled={isSubmitting || !formattedConfig}

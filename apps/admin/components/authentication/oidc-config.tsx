@@ -11,7 +11,7 @@ import { getButtonStyling } from "@plane/propel/button";
 import type { TInstanceAuthenticationMethodKeys } from "@plane/types";
 import { ToggleSwitch } from "@plane/ui";
 import { cn } from "@plane/utils";
-import { isOIDCConfigured } from "@/components/authentication/oidc-config.helpers";
+import { canToggleOIDC, isOIDCConfigured, isOIDCEnabled } from "@/components/authentication/oidc-config.helpers";
 import { useInstance } from "@/hooks/store";
 
 type Props = {
@@ -23,8 +23,8 @@ export const OIDCConfiguration = observer(function OIDCConfiguration(props: Prop
   const { disabled, updateConfig } = props;
   const { formattedConfig } = useInstance();
 
-  const enableOIDCConfig = formattedConfig?.IS_OIDC_ENABLED ?? "";
-  const canToggleOIDC = isOIDCConfigured(formattedConfig) || Boolean(parseInt(enableOIDCConfig, 10));
+  const oidcEnabled = isOIDCEnabled(formattedConfig);
+  const oidcToggleAllowed = canToggleOIDC(formattedConfig);
 
   return (
     <>
@@ -34,13 +34,13 @@ export const OIDCConfiguration = observer(function OIDCConfiguration(props: Prop
             Edit
           </Link>
           <ToggleSwitch
-            value={Boolean(parseInt(enableOIDCConfig, 10))}
+            value={oidcEnabled}
             onChange={() => {
-              const newEnableOIDCConfig = Boolean(parseInt(enableOIDCConfig, 10)) === true ? "0" : "1";
+              const newEnableOIDCConfig = oidcEnabled ? "0" : "1";
               updateConfig("IS_OIDC_ENABLED", newEnableOIDCConfig);
             }}
             size="sm"
-            disabled={disabled || !canToggleOIDC}
+            disabled={disabled || !oidcToggleAllowed}
           />
         </div>
       ) : (

@@ -26,6 +26,13 @@ export default {
     stickies: "Стикеры",
   },
   auth: {
+    ui: {
+      oauth: {
+        continue_with_provider: "Продолжить через {provider}",
+        sign_in_with_provider: "Войти через {provider}",
+        sign_up_with_provider: "Зарегистрироваться через {provider}",
+      },
+    },
     common: {
       email: {
         label: "Email",

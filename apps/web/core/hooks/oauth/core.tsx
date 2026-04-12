@@ -9,6 +9,7 @@ import { useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
 import { KeyRound } from "lucide-react";
 import { API_BASE_URL } from "@plane/constants";
+import { useTranslation } from "@plane/i18n";
 import type { TOAuthConfigs, TOAuthOption } from "@plane/types";
 // assets
 import giteaLogo from "@/app/assets/logos/gitea-logo.svg?url";
@@ -26,10 +27,16 @@ export const useCoreOAuthConfig = (oauthActionText: string): TOAuthConfigs => {
   const next_path = searchParams.get("next_path");
   // theme
   const { resolvedTheme } = useTheme();
+  const { t } = useTranslation();
   // store hooks
   const { config } = useInstance();
   const getOAuthRoute = (route: string) => `${API_BASE_URL}${route}${next_path ? `?next_path=${next_path}` : ``}`;
   const oidcProviderName = config?.oidc_provider_name?.trim() || "OpenID Connect";
+  const getOAuthButtonText = (providerName: string) => {
+    if (oauthActionText === "Sign up") return t("auth.ui.oauth.sign_up_with_provider", { provider: providerName });
+    if (oauthActionText === "Sign in") return t("auth.ui.oauth.sign_in_with_provider", { provider: providerName });
+    return t("auth.ui.oauth.continue_with_provider", { provider: providerName });
+  };
   // derived values
   const isOAuthEnabled =
     (config &&
@@ -42,7 +49,7 @@ export const useCoreOAuthConfig = (oauthActionText: string): TOAuthConfigs => {
   const oAuthOptions: TOAuthOption[] = [
     {
       id: "google",
-      text: `${oauthActionText} with Google`,
+      text: getOAuthButtonText("Google"),
       icon: <img src={googleLogo} height={18} width={18} alt="Google Logo" />,
       onClick: () => {
         window.location.assign(getOAuthRoute("/auth/google/"));
@@ -51,7 +58,7 @@ export const useCoreOAuthConfig = (oauthActionText: string): TOAuthConfigs => {
     },
     {
       id: "github",
-      text: `${oauthActionText} with GitHub`,
+      text: getOAuthButtonText("GitHub"),
       icon: (
         <img
           src={resolvedTheme === "dark" ? GithubDarkLogo : GithubLightLogo}
@@ -67,7 +74,7 @@ export const useCoreOAuthConfig = (oauthActionText: string): TOAuthConfigs => {
     },
     {
       id: "gitlab",
-      text: `${oauthActionText} with GitLab`,
+      text: getOAuthButtonText("GitLab"),
       icon: <img src={gitlabLogo} height={18} width={18} alt="GitLab Logo" />,
       onClick: () => {
         window.location.assign(getOAuthRoute("/auth/gitlab/"));
@@ -76,7 +83,7 @@ export const useCoreOAuthConfig = (oauthActionText: string): TOAuthConfigs => {
     },
     {
       id: "gitea",
-      text: `${oauthActionText} with Gitea`,
+      text: getOAuthButtonText("Gitea"),
       icon: <img src={giteaLogo} height={18} width={18} alt="Gitea Logo" />,
       onClick: () => {
         window.location.assign(getOAuthRoute("/auth/gitea/"));
@@ -85,7 +92,7 @@ export const useCoreOAuthConfig = (oauthActionText: string): TOAuthConfigs => {
     },
     {
       id: "oidc",
-      text: `${oauthActionText} with ${oidcProviderName}`,
+      text: getOAuthButtonText(oidcProviderName),
       icon: <KeyRound className="h-[18px] w-[18px] text-tertiary" />,
       onClick: () => {
         window.location.assign(getOAuthRoute("/auth/oidc/"));
