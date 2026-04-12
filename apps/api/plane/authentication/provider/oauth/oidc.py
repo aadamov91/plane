@@ -31,6 +31,7 @@ class OIDCOAuthProvider(OauthAdapter):
     provider = "oidc"
     default_scope = "openid profile email"
     default_redirect_path = "/auth/oidc/callback/"
+    default_profile_language = "ru"
     discovery_timeout = 10
     discovery_cache_ttl = 3600
     request_timeout = 10
@@ -388,8 +389,15 @@ class OIDCOAuthProvider(OauthAdapter):
                 self._enforce_verified_email()
                 self._enforce_access_group()
                 workspace = self._get_default_workspace()
+                email = self.sanitize_email(self.user_data.get("email"))
+                is_new_user = self.get_existing_user(email=email) is None
                 user = self.complete_login_or_signup()
                 self._ensure_default_workspace_membership(user=user, workspace=workspace)
+                self._sync_oidc_profile(
+                    user=user,
+                    workspace=workspace,
+                    set_default_language=is_new_user,
+                )
                 return user
         except AuthenticationException:
             raise
@@ -487,10 +495,53 @@ class OIDCOAuthProvider(OauthAdapter):
             if update_fields:
                 member.save(update_fields=update_fields)
 
+    def _completed_onboarding_step(self):
+        return {
+            "profile_complete": True,
+            "workspace_create": True,
+            "workspace_invite": True,
+            "workspace_join": True,
+        }
+
+    def _completed_mobile_onboarding_step(self):
+        return {
+            "profile_complete": True,
+            "workspace_create": True,
+            "workspace_join": True,
+        }
+
+    def _sync_oidc_profile(self, user, workspace=None, set_default_language=False):
         profile, _ = Profile.objects.get_or_create(user=user)
-        if profile.last_workspace_id != workspace.id:
+        update_fields = []
+
+        if workspace and profile.last_workspace_id != workspace.id:
             profile.last_workspace_id = workspace.id
-            profile.save(update_fields=["last_workspace_id"])
+            update_fields.append("last_workspace_id")
+
+        completed_onboarding_step = self._completed_onboarding_step()
+        if profile.onboarding_step != completed_onboarding_step:
+            profile.onboarding_step = completed_onboarding_step
+            update_fields.append("onboarding_step")
+
+        if not profile.is_onboarded:
+            profile.is_onboarded = True
+            update_fields.append("is_onboarded")
+
+        completed_mobile_onboarding_step = self._completed_mobile_onboarding_step()
+        if profile.mobile_onboarding_step != completed_mobile_onboarding_step:
+            profile.mobile_onboarding_step = completed_mobile_onboarding_step
+            update_fields.append("mobile_onboarding_step")
+
+        if not profile.is_mobile_onboarded:
+            profile.is_mobile_onboarded = True
+            update_fields.append("is_mobile_onboarded")
+
+        if set_default_language and profile.language != self.default_profile_language:
+            profile.language = self.default_profile_language
+            update_fields.append("language")
+
+        if update_fields:
+            profile.save(update_fields=update_fields)
 
     def set_user_data(self):
         user_info_response = self.get_user_response()

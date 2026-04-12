@@ -264,6 +264,66 @@ def test_oidc_app_callback_rejects_direct_hit_when_oidc_is_disabled(
 
 @pytest.mark.contract
 @pytest.mark.django_db
+@patch("plane.authentication.views.mobile.oidc.OIDCOAuthProvider")
+def test_oidc_mobile_initiate_uses_mobile_callback_path(
+    mock_provider_class,
+    django_client,
+    configured_instance,
+):
+    mock_provider_class.return_value.get_auth_url.return_value = "https://auth.example.com/oidc/auth"
+
+    response = django_client.get(reverse("mobile-oidc-initiate"), {"next_path": "/kallistomed"}, follow=False)
+
+    assert response.status_code == 302
+    assert response.url == "https://auth.example.com/oidc/auth"
+    assert mock_provider_class.call_args.kwargs["redirect_path"] == "/auth/mobile/oidc/callback/"
+    assert mock_provider_class.call_args.kwargs["state"] == django_client.session["state"]
+    assert mock_provider_class.call_args.kwargs["nonce"] == django_client.session["oidc_nonce"]
+    session = django_client.session
+    assert session.get("next_path") == "/kallistomed"
+
+
+@pytest.mark.contract
+@pytest.mark.django_db
+@patch("plane.authentication.views.mobile.oidc.get_safe_redirect_url", return_value="https://plane.example.com/kallistomed")
+@patch("plane.authentication.views.mobile.oidc.user_login")
+@patch("plane.authentication.views.mobile.oidc.OIDCOAuthProvider")
+def test_oidc_mobile_callback_authenticates_and_redirects(
+    mock_provider_class,
+    mock_user_login,
+    mock_safe_redirect,
+    django_client,
+    configured_instance,
+    auth_user,
+):
+    session = django_client.session
+    session["state"] = "mobile-oidc-state"
+    session["oidc_nonce"] = "mobile-oidc-nonce"
+    session["next_path"] = "/kallistomed"
+    session.save()
+
+    mock_provider_class.return_value.authenticate.return_value = auth_user
+
+    response = django_client.get(
+        reverse("mobile-oidc-callback"),
+        {"code": "oidc-code", "state": "mobile-oidc-state"},
+        follow=False,
+    )
+
+    assert response.status_code == 302
+    assert response.url == "https://plane.example.com/kallistomed"
+    mock_user_login.assert_called_once()
+    mock_safe_redirect.assert_called_once()
+    assert mock_provider_class.call_args.kwargs["callback"] is post_user_auth_workflow
+    assert mock_provider_class.call_args.kwargs["redirect_path"] == "/auth/mobile/oidc/callback/"
+    assert mock_provider_class.call_args.kwargs["expected_nonce"] == "mobile-oidc-nonce"
+    session = django_client.session
+    assert session.get("state") is None
+    assert session.get("oidc_nonce") is None
+
+
+@pytest.mark.contract
+@pytest.mark.django_db
 @patch("plane.authentication.views.app.oidc.get_safe_redirect_url", return_value="https://plane.example.com/login?error=oidc")
 @patch("plane.authentication.views.app.oidc.log_exception")
 @patch("plane.authentication.views.app.oidc.OIDCOAuthProvider")

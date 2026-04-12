@@ -379,6 +379,84 @@ def test_oidc_authenticate_provisions_default_workspace_membership(oidc_request)
     assert workspace_member.role == 15
     assert workspace_member.is_active is True
     assert profile.last_workspace_id == workspace.id
+    assert profile.language == "ru"
+    assert profile.is_onboarded is True
+    assert profile.onboarding_step == {
+        "profile_complete": True,
+        "workspace_create": True,
+        "workspace_invite": True,
+        "workspace_join": True,
+    }
+    assert profile.is_mobile_onboarded is True
+    assert profile.mobile_onboarding_step == {
+        "profile_complete": True,
+        "workspace_create": True,
+        "workspace_join": True,
+    }
+
+
+@pytest.mark.unit
+@pytest.mark.django_db
+def test_oidc_authenticate_skips_onboarding_without_default_workspace(oidc_request, oidc_configuration):
+    provider = build_provider(request=oidc_request, configuration=oidc_configuration)
+    apply_user_payload(provider=provider, email="mobile-user@plane.so", provider_id="kc-user-mobile")
+
+    with patch.object(provider, "set_token_data"), patch.object(provider, "set_user_data"):
+        user = provider.authenticate()
+
+    profile = Profile.objects.get(user=user)
+
+    assert profile.last_workspace_id is None
+    assert profile.language == "ru"
+    assert profile.is_onboarded is True
+    assert profile.onboarding_step == {
+        "profile_complete": True,
+        "workspace_create": True,
+        "workspace_invite": True,
+        "workspace_join": True,
+    }
+    assert profile.is_mobile_onboarded is True
+    assert profile.mobile_onboarding_step == {
+        "profile_complete": True,
+        "workspace_create": True,
+        "workspace_join": True,
+    }
+
+
+@pytest.mark.unit
+@pytest.mark.django_db
+def test_oidc_authenticate_preserves_existing_profile_language(oidc_request, oidc_configuration):
+    existing_user = User.objects.create(email="existing-language@plane.so", username=uuid.uuid4().hex)
+    existing_user.set_password("user@123")
+    existing_user.save()
+    profile = Profile.objects.create(
+        user=existing_user,
+        language="de",
+        is_onboarded=False,
+        is_mobile_onboarded=False,
+    )
+    Account.objects.create(
+        user=existing_user,
+        provider="oidc",
+        provider_instance="https://auth.example.com/realms/kallistomed",
+        provider_account_id="kc-user-language",
+        access_token="old-access-token",
+        refresh_token="old-refresh-token",
+        id_token="old-id-token",
+    )
+
+    provider = build_provider(request=oidc_request, configuration=oidc_configuration)
+    apply_user_payload(provider=provider, email="existing-language@plane.so", provider_id="kc-user-language")
+
+    with patch.object(provider, "set_token_data"), patch.object(provider, "set_user_data"):
+        user = provider.authenticate()
+
+    profile.refresh_from_db()
+
+    assert user.id == existing_user.id
+    assert profile.language == "de"
+    assert profile.is_onboarded is True
+    assert profile.is_mobile_onboarded is True
 
 
 @pytest.mark.unit

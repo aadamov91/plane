@@ -20,6 +20,8 @@ from .views import (
     GoogleOauthInitiateEndpoint,
     OIDCCallbackEndpoint,
     OIDCOauthInitiateEndpoint,
+    OIDCCallbackMobileEndpoint,
+    OIDCOauthInitiateMobileEndpoint,
     MagicGenerateEndpoint,
     MagicSignInEndpoint,
     MagicSignUpEndpoint,
@@ -99,6 +101,12 @@ urlpatterns = [
     ## OIDC Oauth
     path("oidc/", OIDCOauthInitiateEndpoint.as_view(), name="oidc-initiate"),
     path("oidc/callback/", OIDCCallbackEndpoint.as_view(), name="oidc-callback"),
+    path("mobile/oidc/", OIDCOauthInitiateMobileEndpoint.as_view(), name="mobile-oidc-initiate"),
+    path(
+        "mobile/oidc/callback/",
+        OIDCCallbackMobileEndpoint.as_view(),
+        name="mobile-oidc-callback",
+    ),
     path(
         "spaces/github/",
         GitHubOauthInitiateSpaceEndpoint.as_view(),

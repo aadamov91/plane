@@ -207,6 +207,14 @@ export function InstanceOIDCConfigForm(props: Props) {
       description: <p>Register this redirect URI in your OIDC provider for the main Plane web application.</p>,
     },
     {
+      key: "Mobile_Callback_URI",
+      label: "Mobile callback URI",
+      url: `${originURL}/auth/mobile/oidc/callback/`,
+      description: (
+        <p>Register this redirect URI in your OIDC provider if you want OIDC sign-in from Plane mobile clients.</p>
+      ),
+    },
+    {
       key: "Space_Callback_URI",
       label: "Space callback URI",
       url: `${originURL}/auth/spaces/oidc/callback/`,
