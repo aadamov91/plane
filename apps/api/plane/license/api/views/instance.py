@@ -56,6 +56,7 @@ class InstanceEndpoint(BaseAPIView):
             IS_GITLAB_ENABLED,
             IS_GITEA_ENABLED,
             IS_OIDC_ENABLED,
+            OIDC_PROVIDER_NAME,
             EMAIL_HOST,
             ENABLE_MAGIC_LINK_LOGIN,
             ENABLE_EMAIL_PASSWORD,
@@ -99,6 +100,11 @@ class InstanceEndpoint(BaseAPIView):
                 {
                     "key": "IS_OIDC_ENABLED",
                     "default": os.environ.get("IS_OIDC_ENABLED", "0"),
+                },
+                {
+                    "key": "OIDC_PROVIDER_NAME",
+                    # Intentional display-only public contract for login surfaces.
+                    "default": os.environ.get("OIDC_PROVIDER_NAME", "OpenID Connect"),
                 },
                 {"key": "EMAIL_HOST", "default": os.environ.get("EMAIL_HOST", "")},
                 {
@@ -150,6 +156,9 @@ class InstanceEndpoint(BaseAPIView):
         data["is_gitlab_enabled"] = IS_GITLAB_ENABLED == "1"
         data["is_gitea_enabled"] = IS_GITEA_ENABLED == "1"
         data["is_oidc_enabled"] = IS_OIDC_ENABLED == "1"
+        # Display-only label for OIDC login surfaces. This does not expose
+        # sensitive provider configuration.
+        data["oidc_provider_name"] = str(OIDC_PROVIDER_NAME) if OIDC_PROVIDER_NAME else None
         data["is_magic_login_enabled"] = ENABLE_MAGIC_LINK_LOGIN == "1"
         data["is_email_password_enabled"] = ENABLE_EMAIL_PASSWORD == "1"
 

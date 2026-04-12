@@ -7,6 +7,7 @@
 // plane imports
 import { useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
+import { KeyRound } from "lucide-react";
 import { API_BASE_URL } from "@plane/constants";
 import type { TOAuthConfigs, TOAuthOption } from "@plane/types";
 // assets
@@ -27,13 +28,16 @@ export const useCoreOAuthConfig = (oauthActionText: string): TOAuthConfigs => {
   const { resolvedTheme } = useTheme();
   // store hooks
   const { config } = useInstance();
+  const getOAuthRoute = (route: string) => `${API_BASE_URL}${route}${next_path ? `?next_path=${next_path}` : ``}`;
+  const oidcProviderName = config?.oidc_provider_name?.trim() || "OpenID Connect";
   // derived values
   const isOAuthEnabled =
     (config &&
       (config?.is_google_enabled ||
         config?.is_github_enabled ||
         config?.is_gitlab_enabled ||
-        config?.is_gitea_enabled)) ||
+        config?.is_gitea_enabled ||
+        config?.is_oidc_enabled)) ||
     false;
   const oAuthOptions: TOAuthOption[] = [
     {
@@ -41,7 +45,7 @@ export const useCoreOAuthConfig = (oauthActionText: string): TOAuthConfigs => {
       text: `${oauthActionText} with Google`,
       icon: <img src={googleLogo} height={18} width={18} alt="Google Logo" />,
       onClick: () => {
-        window.location.assign(`${API_BASE_URL}/auth/google/${next_path ? `?next_path=${next_path}` : ``}`);
+        window.location.assign(getOAuthRoute("/auth/google/"));
       },
       enabled: config?.is_google_enabled,
     },
@@ -57,7 +61,7 @@ export const useCoreOAuthConfig = (oauthActionText: string): TOAuthConfigs => {
         />
       ),
       onClick: () => {
-        window.location.assign(`${API_BASE_URL}/auth/github/${next_path ? `?next_path=${next_path}` : ``}`);
+        window.location.assign(getOAuthRoute("/auth/github/"));
       },
       enabled: config?.is_github_enabled,
     },
@@ -66,7 +70,7 @@ export const useCoreOAuthConfig = (oauthActionText: string): TOAuthConfigs => {
       text: `${oauthActionText} with GitLab`,
       icon: <img src={gitlabLogo} height={18} width={18} alt="GitLab Logo" />,
       onClick: () => {
-        window.location.assign(`${API_BASE_URL}/auth/gitlab/${next_path ? `?next_path=${next_path}` : ``}`);
+        window.location.assign(getOAuthRoute("/auth/gitlab/"));
       },
       enabled: config?.is_gitlab_enabled,
     },
@@ -75,9 +79,18 @@ export const useCoreOAuthConfig = (oauthActionText: string): TOAuthConfigs => {
       text: `${oauthActionText} with Gitea`,
       icon: <img src={giteaLogo} height={18} width={18} alt="Gitea Logo" />,
       onClick: () => {
-        window.location.assign(`${API_BASE_URL}/auth/gitea/${next_path ? `?next_path=${next_path}` : ``}`);
+        window.location.assign(getOAuthRoute("/auth/gitea/"));
       },
       enabled: config?.is_gitea_enabled,
+    },
+    {
+      id: "oidc",
+      text: `${oauthActionText} with ${oidcProviderName}`,
+      icon: <KeyRound className="h-[18px] w-[18px] text-tertiary" />,
+      onClick: () => {
+        window.location.assign(getOAuthRoute("/auth/spaces/oidc/"));
+      },
+      enabled: config?.is_oidc_enabled,
     },
   ];
 

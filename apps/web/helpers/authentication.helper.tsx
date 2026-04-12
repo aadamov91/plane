@@ -75,12 +75,19 @@ export enum EAuthenticationErrorCodes {
   GOOGLE_NOT_CONFIGURED = "5105",
   GITHUB_NOT_CONFIGURED = "5110",
   GITLAB_NOT_CONFIGURED = "5111",
+  OIDC_NOT_CONFIGURED = "5113",
   GOOGLE_OAUTH_PROVIDER_ERROR = "5115",
   GITHUB_OAUTH_PROVIDER_ERROR = "5120",
   GITLAB_OAUTH_PROVIDER_ERROR = "5121",
+  OIDC_OAUTH_PROVIDER_ERROR = "5124",
   // Reset Password
   INVALID_PASSWORD_TOKEN = "5125",
+  OIDC_USER_NOT_ALLOWED = "5126",
+  OIDC_DEFAULT_WORKSPACE_NOT_FOUND = "5127",
+  OIDC_EMAIL_NOT_VERIFIED = "5128",
+  OIDC_ACCOUNT_LINK_CONFLICT = "5129",
   EXPIRED_PASSWORD_TOKEN = "5130",
+  OIDC_PROVIDER_INSTANCE_CONFLICT = "5131",
   // Change password
   INCORRECT_OLD_PASSWORD = "5135",
   MISSING_PASSWORD = "5138",
@@ -270,6 +277,10 @@ const errorCodeMessages: {
     title: `GitLab not configured`,
     message: () => `GitLab not configured. Please contact your administrator.`,
   },
+  [EAuthenticationErrorCodes.OIDC_NOT_CONFIGURED]: {
+    title: `OpenID Connect not configured`,
+    message: () => `OpenID Connect is not configured. Please contact your administrator.`,
+  },
   [EAuthenticationErrorCodes.GOOGLE_OAUTH_PROVIDER_ERROR]: {
     title: `Google OAuth provider error`,
     message: () => `Google OAuth provider error. Please try again.`,
@@ -281,6 +292,34 @@ const errorCodeMessages: {
   [EAuthenticationErrorCodes.GITLAB_OAUTH_PROVIDER_ERROR]: {
     title: `GitLab OAuth provider error`,
     message: () => `GitLab OAuth provider error. Please try again.`,
+  },
+  [EAuthenticationErrorCodes.OIDC_OAUTH_PROVIDER_ERROR]: {
+    title: `OpenID Connect provider error`,
+    message: () => `OpenID Connect provider error. Please try again.`,
+  },
+  [EAuthenticationErrorCodes.OIDC_USER_NOT_ALLOWED]: {
+    title: `Access to Plane is not allowed`,
+    message: () =>
+      `Your identity provider account does not currently have access to Plane. Please contact your administrator.`,
+  },
+  [EAuthenticationErrorCodes.OIDC_DEFAULT_WORKSPACE_NOT_FOUND]: {
+    title: `Default workspace not found`,
+    message: () => `The configured default workspace could not be found. Please contact your administrator.`,
+  },
+  [EAuthenticationErrorCodes.OIDC_EMAIL_NOT_VERIFIED]: {
+    title: `Email address is not verified`,
+    message: () =>
+      `Your identity provider did not return a verified email address. Please verify your email and try again.`,
+  },
+  [EAuthenticationErrorCodes.OIDC_ACCOUNT_LINK_CONFLICT]: {
+    title: `Account linking requires administrator action`,
+    message: () =>
+      `A Plane account with this email already exists. Please ask an administrator to link it before trying again.`,
+  },
+  [EAuthenticationErrorCodes.OIDC_PROVIDER_INSTANCE_CONFLICT]: {
+    title: `Identity provider configuration has changed`,
+    message: () =>
+      `Your sign-in provider configuration no longer matches the linked account. Please contact your administrator.`,
   },
 
   // Reset Password
@@ -405,10 +444,17 @@ export const authErrorHandler = (errorCode: EAuthenticationErrorCodes, email?: s
     EAuthenticationErrorCodes.GOOGLE_NOT_CONFIGURED,
     EAuthenticationErrorCodes.GITHUB_NOT_CONFIGURED,
     EAuthenticationErrorCodes.GITLAB_NOT_CONFIGURED,
+    EAuthenticationErrorCodes.OIDC_NOT_CONFIGURED,
     EAuthenticationErrorCodes.GOOGLE_OAUTH_PROVIDER_ERROR,
     EAuthenticationErrorCodes.GITHUB_OAUTH_PROVIDER_ERROR,
     EAuthenticationErrorCodes.GITLAB_OAUTH_PROVIDER_ERROR,
+    EAuthenticationErrorCodes.OIDC_OAUTH_PROVIDER_ERROR,
+    EAuthenticationErrorCodes.OIDC_USER_NOT_ALLOWED,
+    EAuthenticationErrorCodes.OIDC_DEFAULT_WORKSPACE_NOT_FOUND,
+    EAuthenticationErrorCodes.OIDC_EMAIL_NOT_VERIFIED,
+    EAuthenticationErrorCodes.OIDC_ACCOUNT_LINK_CONFLICT,
     EAuthenticationErrorCodes.INVALID_PASSWORD_TOKEN,
+    EAuthenticationErrorCodes.OIDC_PROVIDER_INSTANCE_CONFLICT,
     EAuthenticationErrorCodes.EXPIRED_PASSWORD_TOKEN,
     EAuthenticationErrorCodes.INCORRECT_OLD_PASSWORD,
     EAuthenticationErrorCodes.MISSING_PASSWORD,

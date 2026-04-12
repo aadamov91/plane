@@ -78,11 +78,13 @@ def test_configure_instance_creates_oidc_configuration_values(monkeypatch):
 @override_settings(SKIP_ENV_VAR=True)
 def test_instance_endpoint_returns_is_oidc_enabled(api_client, configured_instance):
     InstanceConfiguration.objects.create(key="IS_OIDC_ENABLED", value="1", category="AUTHENTICATION")
+    InstanceConfiguration.objects.create(key="OIDC_PROVIDER_NAME", value="Keycloak", category="OIDC")
 
     response = api_client.get(reverse("instance"))
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data["config"]["is_oidc_enabled"] is True
+    assert response.data["config"]["oidc_provider_name"] == "Keycloak"
 
 
 @pytest.mark.contract
