@@ -26,13 +26,6 @@ export default {
     stickies: "Стикеры",
   },
   auth: {
-    ui: {
-      oauth: {
-        continue_with_provider: "Продолжить через {provider}",
-        sign_in_with_provider: "Войти через {provider}",
-        sign_up_with_provider: "Зарегистрироваться через {provider}",
-      },
-    },
     common: {
       email: {
         label: "Email",
@@ -103,6 +96,11 @@ export default {
       forgot_password: "Забыли пароль?",
     },
     ui: {
+      oauth: {
+        continue_with_provider: "Продолжить через {provider}",
+        sign_in_with_provider: "Войти через {provider}",
+        sign_up_with_provider: "Зарегистрироваться через {provider}",
+      },
       header: {
         title: "Работайте во всех измерениях.",
         sign_in: "С возвращением в Plane.",
