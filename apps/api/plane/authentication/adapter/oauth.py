@@ -55,6 +55,8 @@ class OauthAdapter(Adapter):
             return "GITLAB_OAUTH_PROVIDER_ERROR"
         elif self.provider == "gitea":
             return "GITEA_OAUTH_PROVIDER_ERROR"
+        elif self.provider == "oidc":
+            return "OIDC_OAUTH_PROVIDER_ERROR"
         else:
             return "OAUTH_NOT_CONFIGURED"
 
@@ -75,10 +77,15 @@ class OauthAdapter(Adapter):
     def get_user_token(self, data, headers=None):
         try:
             headers = headers or {}
-            response = requests.post(self.get_token_url(), data=data, headers=headers)
+            response = requests.post(
+                self.get_token_url(),
+                data=data,
+                headers=headers,
+                timeout=getattr(self, "request_timeout", 10),
+            )
             response.raise_for_status()
             return response.json()
-        except requests.RequestException:
+        except (requests.RequestException, ValueError):
             self.logger.warning("Error getting user token")
             code = self.authentication_error_code()
             raise AuthenticationException(error_code=AUTHENTICATION_ERROR_CODES[code], error_message=str(code))
@@ -86,14 +93,19 @@ class OauthAdapter(Adapter):
     def get_user_response(self):
         try:
             headers = {"Authorization": f"Bearer {self.token_data.get('access_token')}"}
-            response = requests.get(self.get_user_info_url(), headers=headers)
+            response = requests.get(
+                self.get_user_info_url(),
+                headers=headers,
+                timeout=getattr(self, "request_timeout", 10),
+            )
             response.raise_for_status()
             return response.json()
-        except requests.RequestException:
+        except (requests.RequestException, ValueError):
             self.logger.warning(
                 "Error getting user response",
                 extra={
-                    "headers": headers,
+                    "userinfo_url": self.get_user_info_url(),
+                    "provider": self.provider,
                 },
             )
             code = self.authentication_error_code()
@@ -108,6 +120,7 @@ class OauthAdapter(Adapter):
             account = Account.objects.filter(
                 user=user,
                 provider=self.provider,
+                provider_instance=self.get_provider_instance(),
                 provider_account_id=self.user_data.get("user").get("provider_id"),
             ).first()
             # Update the account if it exists
@@ -124,6 +137,7 @@ class OauthAdapter(Adapter):
                 Account.objects.create(
                     user=user,
                     provider=self.provider,
+                    provider_instance=self.get_provider_instance(),
                     provider_account_id=self.user_data.get("user", {}).get("provider_id"),
                     access_token=self.token_data.get("access_token"),
                     refresh_token=self.token_data.get("refresh_token", None),
@@ -134,3 +148,5 @@ class OauthAdapter(Adapter):
                 )
         except (DatabaseError, IntegrityError) as e:
             log_exception(e)
+            code = self.authentication_error_code()
+            raise AuthenticationException(error_code=AUTHENTICATION_ERROR_CODES[code], error_message=str(code))

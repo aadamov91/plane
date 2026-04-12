@@ -31,7 +31,8 @@ export type TInstanceAuthenticationMethodKeys =
   | "IS_GOOGLE_ENABLED"
   | "IS_GITHUB_ENABLED"
   | "IS_GITLAB_ENABLED"
-  | "IS_GITEA_ENABLED";
+  | "IS_GITEA_ENABLED"
+  | "IS_OIDC_ENABLED";
 
 export type TInstanceGoogleAuthenticationConfigurationKeys =
   | "GOOGLE_CLIENT_ID"
@@ -56,11 +57,30 @@ export type TInstanceGiteaAuthenticationConfigurationKeys =
   | "GITEA_CLIENT_SECRET"
   | "ENABLE_GITEA_SYNC";
 
+export type TInstanceOIDCAuthenticationConfigurationKeys =
+  | "OIDC_PROVIDER_NAME"
+  | "OIDC_ISSUER"
+  | "OIDC_CLIENT_ID"
+  | "OIDC_CLIENT_SECRET"
+  | "OIDC_SCOPE"
+  | "OIDC_EMAIL_CLAIM"
+  | "OIDC_FIRST_NAME_CLAIM"
+  | "OIDC_LAST_NAME_CLAIM"
+  | "OIDC_UID_CLAIM"
+  | "OIDC_GROUPS_CLAIM"
+  | "OIDC_REQUIRE_VERIFIED_EMAIL"
+  | "OIDC_ACCESS_GROUP"
+  | "OIDC_ADMIN_GROUP"
+  | "OIDC_MEMBER_GROUP"
+  | "OIDC_GUEST_GROUP"
+  | "OIDC_DEFAULT_WORKSPACE_SLUG";
+
 export type TInstanceAuthenticationConfigurationKeys =
   | TInstanceGoogleAuthenticationConfigurationKeys
   | TInstanceGithubAuthenticationConfigurationKeys
   | TInstanceGitlabAuthenticationConfigurationKeys
-  | TInstanceGiteaAuthenticationConfigurationKeys;
+  | TInstanceGiteaAuthenticationConfigurationKeys
+  | TInstanceOIDCAuthenticationConfigurationKeys;
 
 export type TInstanceAuthenticationKeys = TInstanceAuthenticationMethodKeys | TInstanceAuthenticationConfigurationKeys;
 
@@ -83,4 +103,4 @@ export type TOAuthConfigs = {
   oAuthOptions: TOAuthOption[];
 };
 
-export type TCoreLoginMediums = "email" | "magic-code" | "github" | "gitlab" | "google" | "gitea";
+export type TCoreLoginMediums = "email" | "magic-code" | "github" | "gitlab" | "google" | "gitea" | "oidc";

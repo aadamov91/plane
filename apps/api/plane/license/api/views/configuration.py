@@ -32,15 +32,51 @@ from plane.license.utils.instance_value import get_email_configuration
 class InstanceConfigurationEndpoint(BaseAPIView):
     permission_classes = [InstanceAdminPermission]
 
+    OIDC_VALIDATION_KEYS = (
+        "IS_OIDC_ENABLED",
+        "OIDC_ISSUER",
+        "OIDC_CLIENT_ID",
+        "OIDC_CLIENT_SECRET",
+        "OIDC_ACCESS_GROUP",
+    )
+
     @cache_response(60 * 60 * 2, user=False)
     def get(self, request):
         instance_configurations = InstanceConfiguration.objects.all()
         serializer = InstanceConfigurationSerializer(instance_configurations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def _validate_oidc_configuration(self, request):
+        current_config = {
+            config.key: config.value
+            for config in InstanceConfiguration.objects.filter(key__in=self.OIDC_VALIDATION_KEYS)
+        }
+        effective_config = {
+            key: str(request.data.get(key, current_config.get(key, "")) or "").strip()
+            for key in self.OIDC_VALIDATION_KEYS
+        }
+        if effective_config["IS_OIDC_ENABLED"] != "1":
+            return None
+
+        missing_keys = [
+            key
+            for key in ("OIDC_ISSUER", "OIDC_CLIENT_ID", "OIDC_CLIENT_SECRET", "OIDC_ACCESS_GROUP")
+            if not effective_config[key]
+        ]
+        if missing_keys:
+            return Response(
+                {"error": "OIDC configuration is incomplete", "missing_keys": missing_keys},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return None
+
     @invalidate_cache(path="/api/instances/configurations/", user=False)
     @invalidate_cache(path="/api/instances/", user=False)
     def patch(self, request):
+        validation_error = self._validate_oidc_configuration(request=request)
+        if validation_error is not None:
+            return validation_error
+
         configurations = InstanceConfiguration.objects.filter(key__in=request.data.keys())
 
         bulk_configurations = []

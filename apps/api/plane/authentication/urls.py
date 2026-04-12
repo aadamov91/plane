@@ -18,6 +18,8 @@ from .views import (
     GitHubOauthInitiateEndpoint,
     GoogleCallbackEndpoint,
     GoogleOauthInitiateEndpoint,
+    OIDCCallbackEndpoint,
+    OIDCOauthInitiateEndpoint,
     MagicGenerateEndpoint,
     MagicSignInEndpoint,
     MagicSignUpEndpoint,
@@ -34,6 +36,8 @@ from .views import (
     GitHubOauthInitiateSpaceEndpoint,
     GoogleCallbackSpaceEndpoint,
     GoogleOauthInitiateSpaceEndpoint,
+    OIDCCallbackSpaceEndpoint,
+    OIDCOauthInitiateSpaceEndpoint,
     MagicGenerateSpaceEndpoint,
     MagicSignInSpaceEndpoint,
     MagicSignUpSpaceEndpoint,
@@ -92,6 +96,9 @@ urlpatterns = [
     ## Github Oauth
     path("github/", GitHubOauthInitiateEndpoint.as_view(), name="github-initiate"),
     path("github/callback/", GitHubCallbackEndpoint.as_view(), name="github-callback"),
+    ## OIDC Oauth
+    path("oidc/", OIDCOauthInitiateEndpoint.as_view(), name="oidc-initiate"),
+    path("oidc/callback/", OIDCCallbackEndpoint.as_view(), name="oidc-callback"),
     path(
         "spaces/github/",
         GitHubOauthInitiateSpaceEndpoint.as_view(),
@@ -101,6 +108,16 @@ urlpatterns = [
         "spaces/github/callback/",
         GitHubCallbackSpaceEndpoint.as_view(),
         name="space-github-callback",
+    ),
+    path(
+        "spaces/oidc/",
+        OIDCOauthInitiateSpaceEndpoint.as_view(),
+        name="space-oidc-initiate",
+    ),
+    path(
+        "spaces/oidc/callback/",
+        OIDCCallbackSpaceEndpoint.as_view(),
+        name="space-oidc-callback",
     ),
     ## Gitlab Oauth
     path("gitlab/", GitLabOauthInitiateEndpoint.as_view(), name="gitlab-initiate"),

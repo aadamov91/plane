@@ -14,6 +14,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
 # Django imports
+from django.db import IntegrityError
 from django.utils import timezone
 
 # Third party imports
@@ -60,6 +61,12 @@ class Adapter:
 
     def authenticate(self):
         raise NotImplementedError
+
+    def get_provider_instance(self):
+        return ""
+
+    def get_existing_user(self, email):
+        return User.objects.filter(email=email).first()
 
     def sanitize_email(self, email):
         # Check if email is present
@@ -294,9 +301,9 @@ class Adapter:
         email = self.sanitize_email(email)
 
         # Check if the user is present
-        user = User.objects.filter(email=email).first()
+        user = self.get_existing_user(email=email)
         # Check if sign up case or login
-        is_signup = bool(user)
+        is_signup = not bool(user)
         # If user is not present, create a new user
         if not user:
             # New user
@@ -309,7 +316,8 @@ class Adapter:
             if self.user_data.get("user").get("is_password_autoset"):
                 user.set_password(uuid.uuid4().hex)
                 user.is_password_autoset = True
-                user.is_email_verified = True
+                email_verified = self.user_data.get("email_verified")
+                user.is_email_verified = True if email_verified is None else bool(email_verified)
 
             # Validate password
             else:
@@ -324,22 +332,28 @@ class Adapter:
             last_name = self.user_data.get("user", {}).get("last_name", "")
             user.first_name = first_name if first_name else ""
             user.last_name = last_name if last_name else ""
-
-            user.save()
+            try:
+                user.save()
+            except IntegrityError:
+                user = self.get_existing_user(email=email)
+                if not user:
+                    raise
+                is_signup = False
 
             # Download and upload avatar
-            avatar = self.user_data.get("user", {}).get("avatar", "")
-            if avatar:
-                avatar_asset = self.download_and_upload_avatar(avatar_url=avatar, user=user)
-                if avatar_asset:
-                    user.avatar_asset = avatar_asset
-                    user.avatar = avatar
-                # If avatar upload fails, set the avatar to the original URL
-                else:
-                    user.avatar = avatar
+            if is_signup:
+                avatar = self.user_data.get("user", {}).get("avatar", "")
+                if avatar:
+                    avatar_asset = self.download_and_upload_avatar(avatar_url=avatar, user=user)
+                    if avatar_asset:
+                        user.avatar_asset = avatar_asset
+                        user.avatar = avatar
+                    # If avatar upload fails, set the avatar to the original URL
+                    else:
+                        user.avatar = avatar
 
-            # Create profile
-            Profile.objects.create(user=user)
+                # Create profile
+                Profile.objects.create(user=user)
 
         # Check if IDP sync is enabled and user is not signing up
         if self.check_sync_enabled() and not is_signup:

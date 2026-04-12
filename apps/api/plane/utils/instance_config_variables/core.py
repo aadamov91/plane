@@ -26,6 +26,105 @@ authentication_config_variables = [
     },
 ]
 
+oidc_config_variables = [
+    {
+        "key": "OIDC_PROVIDER_NAME",
+        "value": os.environ.get("OIDC_PROVIDER_NAME", "OpenID Connect"),
+        "category": "OIDC",
+        "is_encrypted": False,
+    },
+    {
+        "key": "OIDC_ISSUER",
+        "value": os.environ.get("OIDC_ISSUER", ""),
+        "category": "OIDC",
+        "is_encrypted": False,
+    },
+    {
+        "key": "OIDC_CLIENT_ID",
+        "value": os.environ.get("OIDC_CLIENT_ID", ""),
+        "category": "OIDC",
+        "is_encrypted": False,
+    },
+    {
+        "key": "OIDC_CLIENT_SECRET",
+        "value": os.environ.get("OIDC_CLIENT_SECRET", ""),
+        "category": "OIDC",
+        "is_encrypted": True,
+    },
+    {
+        "key": "OIDC_SCOPE",
+        "value": os.environ.get("OIDC_SCOPE", "openid profile email"),
+        "category": "OIDC",
+        "is_encrypted": False,
+    },
+    {
+        "key": "OIDC_EMAIL_CLAIM",
+        "value": os.environ.get("OIDC_EMAIL_CLAIM", "email"),
+        "category": "OIDC",
+        "is_encrypted": False,
+    },
+    {
+        "key": "OIDC_FIRST_NAME_CLAIM",
+        "value": os.environ.get("OIDC_FIRST_NAME_CLAIM", "given_name"),
+        "category": "OIDC",
+        "is_encrypted": False,
+    },
+    {
+        "key": "OIDC_LAST_NAME_CLAIM",
+        "value": os.environ.get("OIDC_LAST_NAME_CLAIM", "family_name"),
+        "category": "OIDC",
+        "is_encrypted": False,
+    },
+    {
+        "key": "OIDC_UID_CLAIM",
+        "value": os.environ.get("OIDC_UID_CLAIM", "sub"),
+        "category": "OIDC",
+        "is_encrypted": False,
+    },
+    {
+        "key": "OIDC_GROUPS_CLAIM",
+        "value": os.environ.get("OIDC_GROUPS_CLAIM", "groups"),
+        "category": "OIDC",
+        "is_encrypted": False,
+    },
+    {
+        "key": "OIDC_REQUIRE_VERIFIED_EMAIL",
+        "value": os.environ.get("OIDC_REQUIRE_VERIFIED_EMAIL", "1"),
+        "category": "OIDC",
+        "is_encrypted": False,
+    },
+    {
+        "key": "OIDC_ACCESS_GROUP",
+        "value": os.environ.get("OIDC_ACCESS_GROUP", ""),
+        "category": "OIDC",
+        "is_encrypted": False,
+    },
+    {
+        "key": "OIDC_ADMIN_GROUP",
+        "value": os.environ.get("OIDC_ADMIN_GROUP", ""),
+        "category": "OIDC",
+        "is_encrypted": False,
+    },
+    {
+        "key": "OIDC_MEMBER_GROUP",
+        "value": os.environ.get("OIDC_MEMBER_GROUP", ""),
+        "category": "OIDC",
+        "is_encrypted": False,
+    },
+    {
+        "key": "OIDC_GUEST_GROUP",
+        "value": os.environ.get("OIDC_GUEST_GROUP", ""),
+        "category": "OIDC",
+        "is_encrypted": False,
+    },
+    {
+        "key": "OIDC_DEFAULT_WORKSPACE_SLUG",
+        "value": os.environ.get("OIDC_DEFAULT_WORKSPACE_SLUG", ""),
+        "category": "OIDC",
+        "is_encrypted": False,
+    },
+]
+
 workspace_management_config_variables = [
     {
         "key": "DISABLE_WORKSPACE_CREATION",
@@ -249,6 +348,7 @@ intercom_config_variables = [
 
 core_config_variables = [
     *authentication_config_variables,
+    *oidc_config_variables,
     *workspace_management_config_variables,
     *google_config_variables,
     *github_config_variables,

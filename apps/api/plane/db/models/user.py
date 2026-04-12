@@ -273,12 +273,15 @@ class Account(TimeAuditModel):
         ("google", "Google"),
         ("github", "Github"),
         ("gitlab", "GitLab"),
+        ("gitea", "Gitea"),
+        ("oidc", "OpenID Connect"),
     )
 
     id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, db_index=True, primary_key=True)
     user = models.ForeignKey("db.User", on_delete=models.CASCADE, related_name="accounts")
     provider_account_id = models.CharField(max_length=255)
     provider = models.CharField(choices=PROVIDER_CHOICES)
+    provider_instance = models.CharField(max_length=255, default="", blank=True)
     access_token = models.TextField()
     access_token_expired_at = models.DateTimeField(null=True)
     refresh_token = models.TextField(null=True, blank=True)
@@ -288,7 +291,7 @@ class Account(TimeAuditModel):
     metadata = models.JSONField(default=dict)
 
     class Meta:
-        unique_together = ["provider", "provider_account_id"]
+        unique_together = ["provider", "provider_instance", "provider_account_id"]
         verbose_name = "Account"
         verbose_name_plural = "Accounts"
         db_table = "accounts"
