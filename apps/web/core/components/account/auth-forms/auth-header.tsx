@@ -27,30 +27,30 @@ type TAuthHeader = {
 const Titles = {
   [EAuthModes.SIGN_IN]: {
     [EAuthSteps.EMAIL]: {
-      header: "Work in all dimensions.",
-      subHeader: "Welcome back to Plane.",
+      header: "auth.ui.header.title",
+      subHeader: "auth.ui.header.sign_in",
     },
     [EAuthSteps.PASSWORD]: {
-      header: "Work in all dimensions.",
-      subHeader: "Welcome back to Plane.",
+      header: "auth.ui.header.title",
+      subHeader: "auth.ui.header.sign_in",
     },
     [EAuthSteps.UNIQUE_CODE]: {
-      header: "Work in all dimensions.",
-      subHeader: "Welcome back to Plane.",
+      header: "auth.ui.header.title",
+      subHeader: "auth.ui.header.sign_in",
     },
   },
   [EAuthModes.SIGN_UP]: {
     [EAuthSteps.EMAIL]: {
-      header: "Work in all dimensions.",
-      subHeader: "Create your Plane account.",
+      header: "auth.ui.header.title",
+      subHeader: "auth.ui.header.sign_up",
     },
     [EAuthSteps.PASSWORD]: {
-      header: "Work in all dimensions.",
-      subHeader: "Create your Plane account.",
+      header: "auth.ui.header.title",
+      subHeader: "auth.ui.header.sign_up",
     },
     [EAuthSteps.UNIQUE_CODE]: {
-      header: "Work in all dimensions.",
-      subHeader: "Create your Plane account.",
+      header: "auth.ui.header.title",
+      subHeader: "auth.ui.header.sign_up",
     },
   },
 };
@@ -87,14 +87,16 @@ export const AuthHeader = observer(function AuthHeader(props: TAuthHeader) {
             {workspace.name}
           </div>
         ),
-        subHeader:
-          mode == EAuthModes.SIGN_UP
-            ? "Create an account to start managing work with your team."
-            : "Log in to start managing work with your team.",
+        subHeader: t(
+          mode == EAuthModes.SIGN_UP ? "auth.ui.invitation.sign_up" : "auth.ui.invitation.sign_in"
+        ),
       };
     }
 
-    return Titles[mode][step];
+    return {
+      header: t(Titles[mode][step].header),
+      subHeader: t(Titles[mode][step].subHeader),
+    };
   };
 
   const { header, subHeader } = getHeaderSubHeader(currentAuthStep, authMode, invitation || undefined, invitationEmail);

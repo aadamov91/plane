@@ -5,6 +5,30 @@
  */
 
 export default {
+  auth: {
+    ui: {
+      header: {
+        title: "Work in all dimensions.",
+        sign_in: "Welcome back to Plane.",
+        sign_up: "Create your Plane account.",
+      },
+      invitation: {
+        sign_in: "Log in to start managing work with your team.",
+        sign_up: "Create an account to start managing work with your team.",
+      },
+      legal: {
+        sign_in_prefix: "By signing in, you understand and agree to our",
+        sign_up_prefix: "By creating an account, you understand and agree to our",
+        and: "and",
+        terms_of_service: "Terms of Service",
+        privacy_policy: "Privacy Policy",
+      },
+      no_methods: {
+        title: "No authentication methods available",
+        description: "Please contact your administrator to enable authentication for your instance.",
+      },
+    },
+  },
   submit: "Submit",
   cancel: "Cancel",
   loading: "Loading",

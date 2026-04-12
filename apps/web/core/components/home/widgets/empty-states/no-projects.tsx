@@ -20,7 +20,7 @@ import { cn, getFileURL } from "@plane/utils";
 import { useCommandPalette } from "@/hooks/store/use-command-palette";
 import { useProject } from "@/hooks/store/use-project";
 import { useWorkspace } from "@/hooks/store/use-workspace";
-import { useUser, useUserPermissions } from "@/hooks/store/user";
+import { useUser, useUserPermissions, useUserProfile } from "@/hooks/store/user";
 // plane web constants
 
 export const NoProjectsEmptyState = observer(function NoProjectsEmptyState() {
@@ -30,6 +30,7 @@ export const NoProjectsEmptyState = observer(function NoProjectsEmptyState() {
   const { allowPermissions } = useUserPermissions();
   const { toggleCreateProjectModal } = useCommandPalette();
   const { data: currentUser } = useUser();
+  const { data: currentUserProfile } = useUserProfile();
   const { joinedProjectIds } = useProject();
   const { currentWorkspace: activeWorkspace } = useWorkspace();
   // local storage
@@ -46,6 +47,10 @@ export const NoProjectsEmptyState = observer(function NoProjectsEmptyState() {
     EUserPermissionsLevel.WORKSPACE
   );
   const isWorkspaceAdmin = allowPermissions([EUserPermissions.ADMIN], EUserPermissionsLevel.WORKSPACE);
+  const shouldHideOIDCQuickstart =
+    currentUser?.last_login_medium === "oidc" &&
+    currentUserProfile?.is_onboarded &&
+    currentUserProfile?.is_tour_completed;
 
   const EMPTY_STATE_DATA = [
     {
@@ -132,7 +137,12 @@ export const NoProjectsEmptyState = observer(function NoProjectsEmptyState() {
     }
   };
 
-  if (storedValue?.hide || (joinedProjectIds?.length > 0 && (activeWorkspace?.total_members || 0) >= 2)) return null;
+  if (
+    shouldHideOIDCQuickstart ||
+    storedValue?.hide ||
+    (joinedProjectIds?.length > 0 && (activeWorkspace?.total_members || 0) >= 2)
+  )
+    return null;
 
   return (
     <div>
