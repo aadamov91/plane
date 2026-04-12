@@ -536,6 +536,10 @@ class OIDCOAuthProvider(OauthAdapter):
             profile.is_mobile_onboarded = True
             update_fields.append("is_mobile_onboarded")
 
+        if not profile.is_tour_completed:
+            profile.is_tour_completed = True
+            update_fields.append("is_tour_completed")
+
         if set_default_language and profile.language != self.default_profile_language:
             profile.language = self.default_profile_language
             update_fields.append("language")

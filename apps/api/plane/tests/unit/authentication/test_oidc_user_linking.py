@@ -393,6 +393,7 @@ def test_oidc_authenticate_provisions_default_workspace_membership(oidc_request)
         "workspace_create": True,
         "workspace_join": True,
     }
+    assert profile.is_tour_completed is True
 
 
 @pytest.mark.unit
@@ -421,6 +422,7 @@ def test_oidc_authenticate_skips_onboarding_without_default_workspace(oidc_reque
         "workspace_create": True,
         "workspace_join": True,
     }
+    assert profile.is_tour_completed is True
 
 
 @pytest.mark.unit
@@ -434,6 +436,7 @@ def test_oidc_authenticate_preserves_existing_profile_language(oidc_request, oid
         language="de",
         is_onboarded=False,
         is_mobile_onboarded=False,
+        is_tour_completed=False,
     )
     Account.objects.create(
         user=existing_user,
@@ -457,6 +460,7 @@ def test_oidc_authenticate_preserves_existing_profile_language(oidc_request, oid
     assert profile.language == "de"
     assert profile.is_onboarded is True
     assert profile.is_mobile_onboarded is True
+    assert profile.is_tour_completed is True
 
 
 @pytest.mark.unit
