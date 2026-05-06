@@ -39,6 +39,9 @@ export const coreRedirectRoutes: RouteConfigEntry[] = [
   route("signin", "routes/redirects/core/signin.tsx"),
   route("login", "routes/redirects/core/login.tsx"),
 
+  // Mobile app self-hosted sign-in handoff
+  route("m/auth", "routes/redirects/core/mobile-auth.tsx"),
+
   // Register redirect
   route("register", "routes/redirects/core/register.tsx"),
 ];
