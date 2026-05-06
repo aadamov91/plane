@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.plane.so",
+      "sha256_cert_fingerprints": [
+        "60:CB:C6:FA:6E:7F:52:38:C0:72:D7:56:3D:12:92:3F:AC:18:6B:B0:0C:C3:61:86:20:61:FB:59:5C:57:EE:23"
+      ]
+    }
+  }
+]

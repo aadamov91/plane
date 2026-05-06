@@ -1,0 +1,35 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": ["66BZC97RPM.com.plane.so"],
+        "components": [
+          {
+            "/": "/api/*",
+            "exclude": true
+          },
+          {
+            "/": "/auth/*",
+            "exclude": true
+          },
+          {
+            "/": "/god-mode/*",
+            "exclude": true
+          },
+          {
+            "/": "/spaces/*",
+            "exclude": true
+          },
+          {
+            "/": "/.well-known/*",
+            "exclude": true
+          },
+          {
+            "/": "/*"
+          }
+        ]
+      }
+    ]
+  }
+}
