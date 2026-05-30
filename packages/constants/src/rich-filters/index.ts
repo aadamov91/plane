@@ -6,3 +6,4 @@
 
 export * from "./operator-labels";
 export * from "./option";
+export * from "./dynamic-values";

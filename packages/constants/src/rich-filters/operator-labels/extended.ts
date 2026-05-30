@@ -4,17 +4,22 @@
  * See the LICENSE file for details.
  */
 
-import type { TExtendedSupportedOperators } from "@plane/types";
+import type { TExtendedSupportedDateFilterOperators, TExtendedSupportedOperators } from "@plane/types";
+import { EXTENDED_COMPARISON_OPERATOR } from "@plane/types";
 
 /**
  * Extended operator labels
  */
-export const EXTENDED_OPERATOR_LABELS_MAP: Record<TExtendedSupportedOperators, string> = {} as const;
+export const EXTENDED_OPERATOR_LABELS_MAP: Record<TExtendedSupportedOperators, string> = {
+  [EXTENDED_COMPARISON_OPERATOR.LTE]: "is on or before",
+} as const;
 
 /**
  * Extended date-specific operator labels
  */
-export const EXTENDED_DATE_OPERATOR_LABELS_MAP: Record<TExtendedSupportedOperators, string> = {} as const;
+export const EXTENDED_DATE_OPERATOR_LABELS_MAP: Record<TExtendedSupportedDateFilterOperators, string> = {
+  [EXTENDED_COMPARISON_OPERATOR.LTE]: "on or before",
+} as const;
 
 /**
  * Negated operator labels for all operators

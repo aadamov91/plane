@@ -15,6 +15,7 @@ from rest_framework import filters
 from rest_framework.exceptions import ValidationError as DRFValidationError
 
 from plane.utils.exception_logger import log_exception
+from plane.utils.filters.dynamic_values import resolve_dynamic_filter_values
 
 
 class ComplexFilterBackend(filters.BaseFilterBackend):
@@ -37,14 +38,14 @@ class ComplexFilterBackend(filters.BaseFilterBackend):
         try:
             if filter_data is not None:
                 normalized = self._normalize_filter_data(filter_data, "filter_data")
-                return self._apply_json_filter(queryset, normalized, view)
+                return self._apply_json_filter(queryset, normalized, view, request)
 
             filter_string = request.query_params.get(self.filter_param, None)
             if not filter_string:
                 return queryset
 
             normalized = self._normalize_filter_data(filter_string, "filter")
-            return self._apply_json_filter(queryset, normalized, view)
+            return self._apply_json_filter(queryset, normalized, view, request)
         except DRFValidationError:
             # Propagate validation errors unchanged
             raise
@@ -77,7 +78,7 @@ class ComplexFilterBackend(filters.BaseFilterBackend):
                 }
             )
 
-    def _apply_json_filter(self, queryset, filter_data, view):
+    def _apply_json_filter(self, queryset, filter_data, view, request):
         """Process a JSON filter structure using Q object composition."""
         if not filter_data:
             return queryset
@@ -85,6 +86,10 @@ class ComplexFilterBackend(filters.BaseFilterBackend):
         # Validate structure and depth before field allowlist checks
         max_depth = self._get_max_depth(view)
         self._validate_structure(filter_data, max_depth=max_depth, current_depth=1)
+
+        # Resolve request-scoped dynamic values on a copy of the payload before
+        # allowlist/filterset validation.
+        filter_data = resolve_dynamic_filter_values(request, filter_data)
 
         # Validate against the view's FilterSet (only declared filters are allowed)
         self._validate_fields(filter_data, view)

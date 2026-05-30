@@ -20,6 +20,7 @@ import {
   FiltersDropdown,
   MobileLayoutSelection,
 } from "@/components/issues/issue-layouts/filters";
+import { WorkItemFiltersToggle } from "@/components/work-item-filters/filters-toggle";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
 import { useProject } from "@/hooks/store/use-project";
@@ -73,6 +74,11 @@ export const ProjectIssuesMobileHeader = observer(function ProjectIssuesMobileHe
           layouts={[EIssueLayoutTypes.LIST, EIssueLayoutTypes.KANBAN, EIssueLayoutTypes.CALENDAR]}
           onChange={handleLayoutChange}
         />
+        {projectId && (
+          <div className="flex flex-grow items-center justify-center border-l border-subtle px-2">
+            <WorkItemFiltersToggle entityType={EIssuesStoreType.PROJECT} entityId={projectId.toString()} />
+          </div>
+        )}
         <div className="flex flex-grow items-center justify-center border-l border-subtle text-13 text-secondary">
           <FiltersDropdown
             title={t("common.display")}

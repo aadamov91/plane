@@ -34,7 +34,7 @@ export const getAssigneeFilterConfig =
       icon: params.filterIcon,
       supportedOperatorConfigsMap: new Map([
         createOperatorConfigEntry(COLLECTION_OPERATOR.IN, params, (updatedParams) =>
-          getMemberMultiSelectConfig(updatedParams, EQUALITY_OPERATOR.EXACT)
+          getMemberMultiSelectConfig({ ...updatedParams, includeCurrentUserOption: true }, EQUALITY_OPERATOR.EXACT)
         ),
       ]),
     });

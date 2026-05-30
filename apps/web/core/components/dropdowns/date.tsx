@@ -30,6 +30,7 @@ import type { TDropdownProps } from "./types";
 type Props = TDropdownProps & {
   clearIconClassName?: string;
   defaultOpen?: boolean;
+  displayLabel?: string;
   optionsClassName?: string;
   icon?: React.ReactNode;
   isClearable?: boolean;
@@ -42,6 +43,8 @@ type Props = TDropdownProps & {
   formatToken?: string;
   renderByDefault?: boolean;
   labelClassName?: string;
+  quickOptions?: { id: string; label: string; value: string }[];
+  onQuickOptionSelect?: (value: string) => void;
 };
 
 export const DateDropdown = observer(function DateDropdown(props: Props) {
@@ -52,6 +55,7 @@ export const DateDropdown = observer(function DateDropdown(props: Props) {
     className = "",
     clearIconClassName = "",
     defaultOpen = false,
+    displayLabel,
     optionsClassName = "",
     closeOnSelect = true,
     disabled = false,
@@ -70,6 +74,8 @@ export const DateDropdown = observer(function DateDropdown(props: Props) {
     formatToken,
     renderByDefault = true,
     labelClassName = "",
+    quickOptions = [],
+    onQuickOptionSelect,
   } = props;
   // states
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -94,7 +100,8 @@ export const DateDropdown = observer(function DateDropdown(props: Props) {
     ],
   });
 
-  const isDateSelected = value && value.toString().trim() !== "";
+  const buttonLabel = displayLabel ?? (value ? renderFormattedDate(value, formatToken) : undefined);
+  const isDateSelected = buttonLabel ? buttonLabel.trim() !== "" : value && value.toString().trim() !== "";
 
   const onOpen = () => {
     if (referenceElement) referenceElement.focus();
@@ -114,6 +121,12 @@ export const DateDropdown = observer(function DateDropdown(props: Props) {
       handleClose();
       referenceElement?.blur();
     }
+  };
+
+  const handleQuickOptionSelect = (value: string) => {
+    onQuickOptionSelect?.(value);
+    handleClose();
+    referenceElement?.blur();
   };
 
   const disabledDays: Matcher[] = [];
@@ -139,7 +152,7 @@ export const DateDropdown = observer(function DateDropdown(props: Props) {
         className={buttonClassName}
         isActive={isOpen}
         tooltipHeading={placeholder}
-        tooltipContent={value ? renderFormattedDate(value, formatToken) : "None"}
+        tooltipContent={buttonLabel ?? "None"}
         showTooltip={showTooltip}
         variant={buttonVariant}
         renderToolTipByDefault={renderByDefault}
@@ -147,7 +160,7 @@ export const DateDropdown = observer(function DateDropdown(props: Props) {
         {!hideIcon && icon}
         {BUTTON_VARIANTS_WITH_TEXT.includes(buttonVariant) && (
           <span className={cn("flex-grow truncate text-left text-body-xs-medium", labelClassName)}>
-            {value ? renderFormattedDate(value, formatToken) : placeholder}
+            {buttonLabel ?? placeholder}
           </span>
         )}
         {isClearable && !disabled && isDateSelected && (
@@ -191,6 +204,23 @@ export const DateDropdown = observer(function DateDropdown(props: Props) {
               style={styles.popper}
               {...attributes.popper}
             >
+              {quickOptions.length > 0 && (
+                <div className="border-b border-subtle p-1">
+                  {quickOptions.map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      className={cn(
+                        "flex w-full items-center rounded px-2 py-1.5 text-left text-12",
+                        "text-secondary hover:bg-surface-2"
+                      )}
+                      onClick={() => handleQuickOptionSelect(option.value)}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
               <Calendar
                 className="rounded-md border border-subtle p-3"
                 captionLayout="dropdown"

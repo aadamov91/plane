@@ -5,6 +5,7 @@
  */
 
 // plane imports
+import { RICH_FILTER_DYNAMIC_VALUE, RICH_FILTER_DYNAMIC_VALUE_LABELS } from "@plane/constants";
 import type { IProject, IUserLite, TOperatorConfigMap, TSupportedOperators } from "@plane/types";
 import { COMPARISON_OPERATOR, EQUALITY_OPERATOR } from "@plane/types";
 // local imports
@@ -20,6 +21,7 @@ import { createOperatorConfigEntry } from "../shared";
 export type TCreateUserFilterParams = TCreateFilterConfigParams &
   IFilterIconConfig<IUserLite> & {
     members: IUserLite[];
+    includeCurrentUserOption?: boolean;
   };
 
 /**
@@ -30,7 +32,16 @@ export type TCreateUserFilterParams = TCreateFilterConfigParams &
 export const getMemberMultiSelectConfig = (params: TCreateUserFilterParams, singleValueOperator: TSupportedOperators) =>
   getMultiSelectConfig<IUserLite, string, IUserLite>(
     {
-      items: params.members,
+      items: params.includeCurrentUserOption
+        ? [
+            {
+              id: RICH_FILTER_DYNAMIC_VALUE.CURRENT_USER,
+              display_name: RICH_FILTER_DYNAMIC_VALUE_LABELS[RICH_FILTER_DYNAMIC_VALUE.CURRENT_USER],
+              avatar_url: "",
+            } as IUserLite,
+            ...params.members,
+          ]
+        : params.members,
       getId: (member) => member.id,
       getLabel: (member) => member.display_name,
       getValue: (member) => member.id,
@@ -50,6 +61,7 @@ export const getMemberMultiSelectConfig = (params: TCreateUserFilterParams, sing
 export const getSupportedDateOperators = (params: TCreateDateFilterParams): TOperatorConfigMap =>
   new Map([
     createOperatorConfigEntry(EQUALITY_OPERATOR.EXACT, params, (updatedParams) => getDatePickerConfig(updatedParams)),
+    createOperatorConfigEntry(COMPARISON_OPERATOR.LTE, params, (updatedParams) => getDatePickerConfig(updatedParams)),
     createOperatorConfigEntry(COMPARISON_OPERATOR.RANGE, params, (updatedParams) =>
       getDateRangePickerConfig(updatedParams)
     ),

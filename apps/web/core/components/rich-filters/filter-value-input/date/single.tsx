@@ -7,6 +7,11 @@
 import React from "react";
 import { observer } from "mobx-react";
 // plane imports
+import {
+  isRichFilterDynamicDateValue,
+  RICH_FILTER_DYNAMIC_DATE_OPTIONS,
+  RICH_FILTER_DYNAMIC_VALUE_LABELS,
+} from "@plane/constants";
 import type { TDateFilterFieldConfig, TFilterConditionNodeForDisplay, TFilterProperty } from "@plane/types";
 import { cn, renderFormattedPayloadDate } from "@plane/utils";
 import { DateDropdown } from "@/components/dropdowns/date";
@@ -25,14 +30,20 @@ export const SingleDateFilterValueInput = observer(function SingleDateFilterValu
   const { config, condition, isDisabled, onChange } = props;
   // derived values
   const conditionValue = typeof condition.value === "string" ? condition.value : null;
+  const dynamicDateLabel = isRichFilterDynamicDateValue(conditionValue)
+    ? RICH_FILTER_DYNAMIC_VALUE_LABELS[conditionValue]
+    : undefined;
 
   return (
     <DateDropdown
-      value={conditionValue}
+      value={dynamicDateLabel ? null : conditionValue}
       onChange={(value: Date | null) => {
         const formattedDate = value ? renderFormattedPayloadDate(value) : null;
         onChange(formattedDate);
       }}
+      displayLabel={dynamicDateLabel}
+      quickOptions={RICH_FILTER_DYNAMIC_DATE_OPTIONS}
+      onQuickOptionSelect={onChange}
       buttonClassName={cn("rounded-none", {
         [COMMON_FILTER_ITEM_BORDER_CLASSNAME]: !isDisabled,
         "text-placeholder": !conditionValue,
