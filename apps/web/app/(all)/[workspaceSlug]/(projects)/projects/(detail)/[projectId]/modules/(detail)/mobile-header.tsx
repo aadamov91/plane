@@ -18,6 +18,7 @@ import { CustomMenu } from "@plane/ui";
 import { WorkItemsModal } from "@/components/analytics/work-items/modal";
 import { DisplayFiltersSelection, FiltersDropdown } from "@/components/issues/issue-layouts/filters";
 import { IssueLayoutIcon } from "@/components/issues/issue-layouts/layout-icon";
+import { WorkItemFiltersToggle } from "@/components/work-item-filters/filters-toggle";
 // hooks
 import { useIssues } from "@/hooks/store/use-issues";
 import { useModule } from "@/hooks/store/use-module";
@@ -100,6 +101,11 @@ export const ModuleIssuesMobileHeader = observer(function ModuleIssuesMobileHead
             </CustomMenu.MenuItem>
           ))}
         </CustomMenu>
+        {moduleId && (
+          <div className="flex flex-grow items-center justify-center border-l border-subtle px-2">
+            <WorkItemFiltersToggle entityType={EIssuesStoreType.MODULE} entityId={moduleId.toString()} />
+          </div>
+        )}
         <div className="flex flex-grow items-center justify-center border-l border-subtle text-13 text-secondary">
           <FiltersDropdown
             title="Display"

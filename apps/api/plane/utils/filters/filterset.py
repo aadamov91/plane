@@ -157,13 +157,16 @@ class IssueFilterSet(BaseFilterSet):
     subscriber_id = filters.UUIDFilter(method="filter_subscriber_id")
     subscriber_id__in = UUIDInFilter(method="filter_subscriber_id_in", lookup_expr="in")
 
+    created_at__lte = filters.DateFilter(field_name="created_at", method="filter_datetime_date_lte")
+    updated_at__lte = filters.DateFilter(field_name="updated_at", method="filter_datetime_date_lte")
+
     class Meta:
         model = Issue
         fields = {
-            "start_date": ["exact", "range"],
-            "target_date": ["exact", "range"],
-            "created_at": ["exact", "range"],
-            "updated_at": ["exact", "range"],
+            "start_date": ["exact", "range", "lte"],
+            "target_date": ["exact", "range", "lte"],
+            "created_at": ["exact", "range", "lte"],
+            "updated_at": ["exact", "range", "lte"],
             "is_draft": ["exact"],
             "priority": ["exact", "in"],
         }
@@ -264,3 +267,7 @@ class IssueFilterSet(BaseFilterSet):
             issue_subscribers__subscriber_id__in=value,
             issue_subscribers__deleted_at__isnull=True,
         )
+
+    def filter_datetime_date_lte(self, queryset, name, value):
+        """Filter datetime fields using date-only on-or-before semantics."""
+        return Q(**{f"{name}__date__lte": value})
